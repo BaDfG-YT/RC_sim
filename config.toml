@@ -1,0 +1,133 @@
+# ============================================================================
+#  RCJ Soccer Vision Simulator — конфигурация
+#  Единицы: метры, секунды, м/с, градусы. Всё, что не указано, берётся из
+#  rcjsim/config.py (DEFAULTS).
+# ============================================================================
+
+[sim]
+physics_dt = 0.002        # шаг физики, с
+control_hz = 60           # как часто вызывается step() стратегии (цикл робота), Гц
+speed = 1.0               # множитель скорости симуляции при старте
+seed = 0                  # 0 — случайная жеребьёвка/шум; иначе воспроизводимо
+position_noise = 0.0      # СКО шума глобальной позиции (роботы, мяч), м. Напр. 0.01
+heading_noise_deg = 0.0   # СКО шума курса, градусы
+team_frame = true         # стратегия всегда «атакует вправо» (+X), свои ворота слева
+
+[window]
+width = 1400
+height = 860
+fps = 60
+panel_width = 380
+
+[physics]
+ball_radius = 0.021               # мяч для гольфа, Ø 42 мм
+ball_rolling_decel = 0.35         # замедление качения по ковру, м/с²
+ball_wall_restitution = 0.55      # отскок мяча от стен/ворот
+ball_robot_restitution = 0.35     # отскок мяча от корпуса/ниши
+robot_robot_restitution = 0.15
+capture_max_speed = 0.5           # мяч остаётся в нише, если отн. скорость <= 0.5 м/с, иначе отскок
+capture_lateral_tol = 0.5         # боковой допуск захвата (доля от w/2 + r мяча)
+dribbler_max_lateral_acc = 3.0    # м/с² — при большем боковом ускорении мяч теряется
+dribbler_max_brake_acc = 3.0      # м/с² — резкое торможение/быстрое вращение → мяч уходит
+auto_limit_accel_with_ball = true # с мячом регулятор сам ограничивает ускорения
+kick_cooldown_s = 0.5             # перезарядка кикера
+recapture_block_s = 0.25          # после удара мяч не захватывается сразу
+kick_contact_tol = 0.006          # удар возможен и без захвата, если мяч в нише с зазором <= 6 мм
+wedge = true                      # клин 10 см / 2 см у стен (кроме ворот)
+
+# ---------------------------------------------------------------- правила
+# Базовые правила (режим match). Режимы free/debug переопределяют часть ниже.
+[rules]
+half_duration_s = 600       # 2 тайма по 10 минут (п. 2.1.1)
+halves = 2
+halftime_break_s = 0        # по правилам 300 с (5 мин); 0 — сразу второй тайм
+kickoff_delay_s = 1.0       # роботы стоят после расстановки, затем «свисток»
+coin_toss = "random"        # random | team1 | team2 — кто начинает 1-й тайм
+out_of_bounds = true        # п. 2.8 — аут
+out_on_wall_touch = true    #   касание стены
+out_on_full_penalty_area = true  # робот полностью в штрафной (любой)
+out_on_leaving_field = false     # НЕ по правилам 2026: аут при полном выходе за белую линию
+out_action = "penalty"      # penalty — удаление на penalty_duration_s (п. 2.8.1)
+                            # reposition — сразу на нейтральную точку, без удаления
+                            # none — только отметка и запись в журнал
+penalty_duration_s = 60
+return_at_kickoff = true    # удалённые возвращаются при начале с центра (п. 2.8.1)
+multiple_defense = true     # п. 2.6.2 — два робота одной команды в штрафной
+pushing = true              # п. 2.6.3 — толкание в штрафной при контакте с мячом
+lack_of_progress = true     # п. 2.7
+lack_of_progress_s = 10.0   # мяч не сдвинулся на lack_of_progress_dist за это время
+lack_of_progress_dist = 0.05
+max_goal_difference = 10    # п. 2.1.3
+
+[modes.free.rules]          # свободная игра: без времени, счёт бесконечный
+out_action = "reposition"   # поставьте "penalty", чтобы удалять на минуту
+
+[modes.debug]               # отладка одного робота
+robot = "t1_1"              # можно переопределить: --robot t2_1
+others = "hidden"           # hidden — убрать остальных, frozen — стоят как препятствия, active — играют
+
+[modes.debug.rules]
+out_action = "none"
+lack_of_progress = false
+multiple_defense = false
+pushing = false
+
+# ---------------------------------------------------------------- команды
+# Общие значения для обеих команд (можно переопределить в [team1]/[team2]
+# и для отдельного робота в списке robots).
+[team_defaults]
+radius = 0.09          # 0.07..0.09 м (Ø робота <= 18 см, п. 6.2.A)
+niche_width = 0.03     # 0.01..макс. м; максимум считается так, чтобы мяч заходил в оболочку <= 1.5 см
+                       # (для R=9 см ≈ 3.87 см, для R=7 см ≈ 3.83 см)
+max_speed = 2.0        # м/с — в правилах 2026 ограничения скорости нет, задайте реальную для вашего робота
+max_accel = 4.0        # м/с²
+max_omega_deg = 720.0  # град/с
+max_alpha_deg = 5000.0 # град/с²
+kick_speed = 0.0       # м/с; 0 — авто: максимум, проходящий проверку силы удара (Appendix A)
+
+[team1]
+name = "Gamma"
+color = [220, 60, 60]
+radius = 0.09
+niche_width = 0.03
+robots = [
+  { name = "Striker", strategy = "strategies.basic:Striker" },
+  { name = "Goalie",  strategy = "strategies.basic:Goalie" },
+]
+
+[team2]
+name = "Opponent"
+color = [150, 60, 210]
+radius = 0.085
+niche_width = 0.025
+robots = [
+  { name = "Striker", strategy = "strategies.basic:Striker" },
+  { name = "Goalie",  strategy = "strategies.basic:Goalie" },
+]
+
+# ------------------------------------------------------------ горячие клавиши
+# Имена клавиш — как в pygame: "a".."z", "0".."9", "f1".."f12", "space", "tab",
+# "escape", "return", "left", "=", "-", "[", "]" ... Модификаторы: "ctrl+t", "shift+b".
+# Пустая строка "" — отключить.
+[hotkeys]
+teleport_ball = "b"        # мяч в точку под курсором
+teleport_selected = "t"    # выбранный робот в точку под курсором
+teleport_t1_1 = "1"
+teleport_t1_2 = "2"
+teleport_t2_1 = "3"
+teleport_t2_2 = "4"
+rotate_left = "q"
+rotate_right = "e"
+select_next = "tab"
+stop_ball = "x"
+pause = "space"
+step = "n"
+speed_up = "="
+speed_down = "-"
+kickoff = "k"
+toggle_overlay = "o"
+toggle_help = "h"
+reload_strategies = "f5"
+debug_prev = "["
+debug_next = "]"
+quit = "escape"
