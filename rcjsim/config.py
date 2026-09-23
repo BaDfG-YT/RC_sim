@@ -11,7 +11,8 @@ from typing import Any
 
 # Ограничения из правил RCJ Soccer 2026 (Soccer Vision), п. 6.2.A
 RULE_MAX_ROBOT_DIAMETER = 0.18       # робот должен помещаться в цилиндр 18 см
-RULE_BALL_CAPTURE_DEPTH = 0.015      # мяч не может заходить в выпуклую оболочку глубже 1.5 см
+# мяч не может заходить в выпуклую оболочку глубже 1.5 см
+RULE_BALL_CAPTURE_DEPTH = 0.015
 ROBOT_RADIUS_MIN = 0.07              # по ТЗ: радиус 7..9 см
 ROBOT_RADIUS_MAX = RULE_MAX_ROBOT_DIAMETER / 2
 NICHE_WIDTH_MIN = 0.01
@@ -19,7 +20,8 @@ NICHE_WIDTH_MIN = 0.01
 DEFAULTS: dict[str, Any] = {
     "sim": {
         "physics_dt": 0.002,         # шаг физики, с
-        "control_hz": 60,            # частота вызова стратегий (цикл робота), Гц
+        # частота вызова стратегий (цикл робота), Гц
+        "control_hz": 60,
         "speed": 1.0,                # множитель скорости симуляции
         "seed": 0,                   # 0 — случайный
         "position_noise": 0.0,       # СКО шума глобального позиционирования, м
@@ -39,10 +41,14 @@ DEFAULTS: dict[str, Any] = {
         "ball_robot_restitution": 0.35,
         "robot_robot_restitution": 0.15,
         "capture_max_speed": 0.5,    # мяч захватывается нишей, если отн. скорость <= 0.5 м/с
-        "capture_lateral_tol": 0.5,  # доля (ширины ниши/2 + r мяча) — боковой допуск захвата
-        "dribbler_max_lateral_acc": 3.0,   # м/с² — бок. ускорение, при котором мяч теряется
-        "dribbler_max_brake_acc": 3.0,     # м/с² — торможение, при котором мяч «уезжает» вперёд
-        "auto_limit_accel_with_ball": True,  # с мячом ограничивать ускорение, чтобы не терять
+        # доля (ширины ниши/2 + r мяча) — боковой допуск захвата
+        "capture_lateral_tol": 0.5,
+        # м/с² — бок. ускорение, при котором мяч теряется
+        "dribbler_max_lateral_acc": 3.0,
+        # м/с² — торможение, при котором мяч «уезжает» вперёд
+        "dribbler_max_brake_acc": 3.0,
+        # с мячом ограничивать ускорение, чтобы не терять
+        "auto_limit_accel_with_ball": True,
         "kick_cooldown_s": 0.5,
         "recapture_block_s": 0.25,   # после удара нельзя снова захватить мяч
         "kick_contact_tol": 0.006,   # удар без захвата: мяч в нише с зазором <= 6 мм
@@ -58,7 +64,8 @@ DEFAULTS: dict[str, Any] = {
         "out_on_wall_touch": True,
         "out_on_full_penalty_area": True,
         "out_on_leaving_field": False,  # НЕ из правил 2026: аут при полном выходе за линию
-        "out_action": "penalty",     # penalty (удаление) | reposition (сразу на нейтр. точку) | none
+        # penalty (удаление) | reposition (сразу на нейтр. точку) | none
+        "out_action": "penalty",
         "penalty_duration_s": 60,
         "return_at_kickoff": True,   # п. 2.8.1 — удалённые возвращаются при начале с центра
         "multiple_defense": True,    # п. 2.6.2
@@ -80,9 +87,10 @@ DEFAULTS: dict[str, Any] = {
     },
     "team_defaults": {
         "radius": 0.09,
-        "niche_width": 0.03,
-        "max_speed": 2.0,            # м/с (в правилах 2026 лимита скорости нет)
-        "max_accel": 4.0,            # м/с²
+        "niche_width": 0.07,
+        # м/с (в правилах 2026 лимита скорости нет)
+        "max_speed": 4.0,
+        "max_accel": 8.0,            # м/с²
         "max_omega_deg": 720.0,      # град/с
         "max_alpha_deg": 5000.0,     # град/с²
         "kick_speed": 0.0,           # 0 — авто по процедуре Appendix A
@@ -90,7 +98,7 @@ DEFAULTS: dict[str, Any] = {
     },
     "team1": {
         "name": "Team 1",
-        "color": [220, 60, 60],
+        "color": [255, 74, 54],
         "robots": [
             {"name": "Striker", "strategy": "strategies.basic:Striker"},
             {"name": "Goalie", "strategy": "strategies.basic:Goalie"},
@@ -98,13 +106,18 @@ DEFAULTS: dict[str, Any] = {
     },
     "team2": {
         "name": "Team 2",
-        "color": [150, 60, 210],
+        "color": [253, 130, 255],
         "robots": [
             {"name": "Striker", "strategy": "strategies.basic:Striker"},
             {"name": "Goalie", "strategy": "strategies.basic:Goalie"},
         ],
     },
     "hotkeys": {
+        "mode_match": "f1",
+        "mode_free": "f2",
+        "mode_debug": "f3",
+        "cycle_mode": "m",
+        "teleport_ball": "b",
         "teleport_ball": "b",
         "teleport_selected": "t",
         "teleport_t1_1": "1",

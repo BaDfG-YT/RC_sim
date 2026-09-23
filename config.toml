@@ -83,11 +83,11 @@ max_speed = 2.0        # м/с — в правилах 2026 ограничени
 max_accel = 4.0        # м/с²
 max_omega_deg = 720.0  # град/с
 max_alpha_deg = 5000.0 # град/с²
-kick_speed = 0.0       # м/с; 0 — авто: максимум, проходящий проверку силы удара (Appendix A)
+kick_speed = 2.0       # м/с; 0 — авто: максимум, проходящий проверку силы удара (Appendix A)
 
 [team1]
 name = "Gamma"
-color = [220, 60, 60]
+color = [255, 74, 54]
 radius = 0.09
 niche_width = 0.03
 robots = [
@@ -97,8 +97,8 @@ robots = [
 
 [team2]
 name = "Opponent"
-color = [150, 60, 210]
-radius = 0.085
+color = [200, 80, 205]
+radius = 0.09
 niche_width = 0.025
 robots = [
   { name = "Striker", strategy = "strategies.basic:Striker" },
@@ -110,6 +110,10 @@ robots = [
 # "escape", "return", "left", "=", "-", "[", "]" ... Модификаторы: "ctrl+t", "shift+b".
 # Пустая строка "" — отключить.
 [hotkeys]
+mode_match = "f1"          # переключить на режим "матч по правилам"
+mode_free = "f2"           # переключить на режим "свободная игра"
+mode_debug = "f3"          # переключить на режим "отладка одного робота"
+cycle_mode = "m"           # следующий режим (match → free → debug → match…)
 teleport_ball = "b"        # мяч в точку под курсором
 teleport_selected = "t"    # выбранный робот в точку под курсором
 teleport_t1_1 = "1"

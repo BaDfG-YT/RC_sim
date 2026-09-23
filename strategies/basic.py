@@ -77,7 +77,7 @@ class Striker(Strategy):
                     robot.debug("УДАР")
             return
 
-        if world.ball.in_niche and world.ball.owner_team == me.team:
+        if world.ball.in_niche and world.ball.owner_team == me.team:    
             # мяч у партнёра — открываемся
             t = safe_target(world, Vec2(0.3, -0.3 if ball.y > 0 else 0.3), R)
             robot.move_to(t.x, t.y, speed=1.2, heading=0)
@@ -107,7 +107,7 @@ class Striker(Strategy):
 
         # робот перед мячом (между мячом и воротами) — объезжаем сбоку
         rel = me.pos - ball
-        if rel.dot(to_goal) > 0 and abs(rel.cross(to_goal)) < R + 0.06:
+        if rel.dot(to_goal) > 0 and abs(rel.cross(to_goal)) < R + 0.1:
             side = 1 if rel.cross(to_goal) <= 0 else -1
             t = ball + to_goal.perp() * (side * (R + 0.12)) - to_goal * 0.05
             t = safe_target(world, t, R)

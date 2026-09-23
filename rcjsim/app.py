@@ -12,8 +12,14 @@ from .render import Renderer
 from .vec import Vec2
 
 SPEEDS = [0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0, 16.0]
+MODES_CYCLE = ("match", "free", "debug")
+MODE_TITLE = {"match": "МАТЧ", "free": "СВОБОДНАЯ ИГРА", "debug": "ОТЛАДКА"}
 
 ACTION_HELP = {
+    "mode_match": "режим: матч по правилам",
+    "mode_free": "режим: свободная игра",
+    "mode_debug": "режим: отладка одного робота",
+    "cycle_mode": "следующий режим",
     "teleport_ball": "перенести мяч под курсор",
     "teleport_selected": "перенести выбранного робота под курсор",
     "teleport_t1_1": "перенести t1_1 под курсор",
@@ -86,6 +92,20 @@ class App:
              "  ПКМ-протяжка от мяча — бросить мяч", "  колесо — поворот выбранного"]
         self.drag: Optional[str] = None
 
+    # ------------------------------------------------------------- режимы
+    def switch_mode(self, new_mode: str, debug_robot: Optional[str] = None):
+        """Пересоздаёт симуляцию в новом режиме (счёт и время матча сбрасываются)."""
+        if new_mode == self.mode and not (new_mode == "debug" and debug_robot):
+            return
+        dbg = debug_robot or (self.selected if self.selected in ROBOT_IDS else None)
+        self.mode = new_mode
+        self.sim = Simulation(self.cfg, new_mode, dbg)
+        self.selected = self.sim.debug_robot_id if new_mode == "debug" else (dbg or "t1_1")
+        self.drag = None
+        self.throw_from = None
+        pygame.display.set_caption(f"RCJ Soccer Vision Simulator — {new_mode}")
+        self.sim.log(f"Режим: {MODE_TITLE[new_mode]}")
+
     # ------------------------------------------------------------- ввод
     def mouse_world(self) -> Vec2:
         mx, my = pygame.mouse.get_pos()
@@ -140,11 +160,22 @@ class App:
             self.renderer.show_help = not self.renderer.show_help
         elif name == "reload_strategies":
             sim.load_strategies(reload=True)
-        elif name in ("debug_prev", "debug_next") and self.mode == "debug":
-            i = ROBOT_IDS.index(sim.debug_robot_id)
-            i = (i + (1 if name == "debug_next" else -1)) % len(ROBOT_IDS)
-            self.sim = Simulation(self.cfg, "debug", ROBOT_IDS[i])
-            self.selected = ROBOT_IDS[i]
+        elif name == "mode_match":
+            self.switch_mode("match")
+        elif name == "mode_free":
+            self.switch_mode("free")
+        elif name == "mode_debug":
+            self.switch_mode("debug")
+        elif name == "cycle_mode":
+            i = MODES_CYCLE.index(self.mode)
+            self.switch_mode(MODES_CYCLE[(i + 1) % len(MODES_CYCLE)])
+        elif name in ("debug_prev", "debug_next"):
+            if self.mode == "debug":
+                i = ROBOT_IDS.index(sim.debug_robot_id)
+                i = (i + (1 if name == "debug_next" else -1)) % len(ROBOT_IDS)
+                self.switch_mode("debug", ROBOT_IDS[i])
+            else:
+                self.switch_mode("debug")
 
     def handle_events(self):
         for ev in pygame.event.get():
